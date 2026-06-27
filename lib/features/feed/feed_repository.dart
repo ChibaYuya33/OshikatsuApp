@@ -26,11 +26,14 @@ class LocalFeedRepository implements FeedRepository {
 }
 
 /// 次フェーズで有効化するリモート実装の雛形。
-/// baseUrl に Xserver 上の API エンドポイントを設定し、差し替えるだけで動く。
+/// baseUrl に Xserver 上の API ディレクトリ(例: https://example.xsrv.jp/oshikatsu/api)
+/// を設定し、差し替えるだけで動く。サーバー側は server/ 配下を参照。
 class RemoteFeedRepository implements FeedRepository {
-  RemoteFeedRepository(this.baseUrl, {Dio? dio}) : _dio = dio ?? Dio();
+  RemoteFeedRepository(this.baseUrl, {this.apiToken, Dio? dio})
+      : _dio = dio ?? Dio();
 
   final String baseUrl;
+  final String? apiToken;
   final Dio _dio;
 
   @override
@@ -38,11 +41,16 @@ class RemoteFeedRepository implements FeedRepository {
 
   @override
   Future<List<FeedItem>> fetchNew(Oshi oshi, {DateTime? since}) async {
-    final res = await _dio.get('$baseUrl/feed', queryParameters: {
-      'oshi': oshi.id,
-      if (oshi.youtubeChannelId != null) 'youtube': oshi.youtubeChannelId,
-      if (since != null) 'since': since.toIso8601String(),
-    });
+    final res = await _dio.get(
+      '$baseUrl/feed.php',
+      queryParameters: {
+        'oshi': oshi.id,
+        if (since != null) 'since': since.toIso8601String(),
+      },
+      options: apiToken == null
+          ? null
+          : Options(headers: {'X-Api-Token': apiToken}),
+    );
     final list = (res.data as List?) ?? const [];
     return list
         .whereType<Map>()

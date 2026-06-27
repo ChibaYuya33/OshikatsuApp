@@ -1,0 +1,14 @@
+# 機密ファイルへの直接アクセスを禁止(Xserver Apache)。
+# api/ 配下のみ公開し、設定・ライブラリ・SQL・ログは遮断する。
+
+<FilesMatch "(config\.php|.*\.sql|.*\.log)$">
+    Require all denied
+</FilesMatch>
+
+# lib/ ディレクトリ全体を遮断
+RedirectMatch 403 ^/.*/lib/.*$
+
+# collect.php はブラウザから実行させない(本体でもCLI判定あり)
+<Files "collect.php">
+    Require all denied
+</Files>

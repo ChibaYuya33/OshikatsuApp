@@ -1,0 +1,12 @@
+# アプリアイコン設定: `dart run flutter_launcher_icons` で各プラットフォームに生成。
+flutter_launcher_icons:
+  image_path: "assets/icon/icon.png"
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/icon/icon.png"
+  # Android 8.0+ のアダプティブアイコン
+  adaptive_icon_background: "#FF6FA5"
+  adaptive_icon_foreground: "assets/icon/icon_foreground.png"
