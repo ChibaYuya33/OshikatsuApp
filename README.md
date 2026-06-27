@@ -38,16 +38,18 @@ Mac も Apple Developer 登録（$99/年）も Xcode も**不要**。Web版（PW
 自動公開し、iPhone の Safari で開いて「ホーム画面に追加」するだけでアプリのように使えます。
 
 ### 手順
-1. **初回だけ**リポジトリ設定を1回行う（コードからは設定不可）
-   - GitHub のリポジトリ → **Settings** → 左メニュー **Pages**
-   - **Build and deployment** → **Source** を「**GitHub Actions**」に変更
-2. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
-   （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します
-   （Actions タブで進捗を確認できます。数分で完了）
-3. 公開後、iPhone の **Safari** で次のURLを開く
+1. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
+   （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します。
+   **GitHub Pages の有効化もワークフローが自動で行う**ため、原則として事前設定は不要です
+   （**Actions** タブで進捗を確認できます。数分で完了）
+2. 公開後、iPhone の **Safari** で次のURLを開く
    - **https://chibayuya33.github.io/OshikatsuApp/**
-4. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
+3. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
    → ホーム画面に「推し活アプリ」アイコンが追加され、全画面アプリのように起動します
+
+> もし Actions が Pages 関連でエラーになる場合のみ、1回だけ手動設定してください：
+> GitHub のリポジトリ → **Settings** → **Pages** → **Build and deployment** → **Source** を
+> 「**GitHub Actions**」に変更して、Actions タブから再実行（Re-run）します。
 
 ### PWA でできること / 制約
 - ✅ 推し・グッズ・支出・イベント・予算・貯金目標の登録/集計/グラフ/カレンダー、JSON バックアップ

@@ -36,6 +36,12 @@ jobs:
           flutter-version: 3.44.4
           cache: true
 
+      # Pages を自動で有効化（Settings の手動操作を不要にする）。
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Install dependencies
         run: flutter pub get
 
