@@ -1,0 +1,64 @@
+name: Deploy Web (PWA) to GitHub Pages
+
+# Flutter web をビルドして GitHub Pages に公開する。
+# 公開URL: https://chibayuya33.github.io/OshikatsuApp/
+# ※ 初回のみ、リポジトリ Settings → Pages → Build and deployment → Source を
+#    「GitHub Actions」に設定する必要があります（コードからは設定できません）。
+
+on:
+  push:
+    branches:
+      - claude/fan-activity-app-6xo8tr
+  workflow_dispatch: {}
+
+# GitHub Pages へのデプロイに必要な権限。
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同時実行は1つにまとめ、進行中のものはキャンセルしない（公開の取りこぼし防止）。
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.4
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build web
+        # base-href はプロジェクトページのサブパスに合わせる（リポジトリ名）。
+        # canvaskit を自前配信して、フォント/レンダラをオフラインでも安定動作させる。
+        run: >
+          flutter build web --release
+          --no-web-resources-cdn
+          --base-href "/OshikatsuApp/"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

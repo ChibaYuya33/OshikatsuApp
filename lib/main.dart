@@ -13,11 +13,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ja_JP');
 
-  // ローカルデータ読み込み。
-  final store = LocalStore(FileStoreBackend());
-  await store.load();
-
   final prefs = await SharedPreferences.getInstance();
+
+  // ローカルデータ読み込み(SharedPreferences に保存。iOS/Android/Web共通)。
+  final store = LocalStore(PrefsStoreBackend(prefs));
+  await store.load();
 
   // 通知初期化(Webや失敗時は安全にスキップ)。
   final notifications = NotificationService();

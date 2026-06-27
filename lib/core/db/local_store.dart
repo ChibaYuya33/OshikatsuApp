@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 
@@ -59,36 +58,28 @@ class DbData {
 }
 
 /// 永続化の差し替えポイント。
-/// 実機/Webでは [FileStoreBackend]、テストでは [MemoryStoreBackend] を使う。
+/// 実機(iOS/Android)・Web・デスクトップでは [PrefsStoreBackend]、
+/// テストでは [MemoryStoreBackend] を使う。
 abstract class StoreBackend {
   Future<String?> read();
   Future<void> write(String data);
 }
 
-/// アプリのドキュメント領域に1ファイルで保存する実装。
-class FileStoreBackend implements StoreBackend {
-  static const _fileName = 'oshikatsu_db.json';
+/// SharedPreferences に DB全体のJSONを単一キーで保存する実装。
+/// iOS/Android/Web/デスクトップすべてで動作する(Webは localStorage を使用)。
+/// データは個人利用想定で数百件程度のため、1文字列での保存で十分。
+class PrefsStoreBackend implements StoreBackend {
+  PrefsStoreBackend(this._prefs);
 
-  Future<File> _file() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return File('${dir.path}/$_fileName');
-  }
+  static const _key = 'oshikatsu_db_json';
+  final SharedPreferences _prefs;
 
   @override
-  Future<String?> read() async {
-    try {
-      final f = await _file();
-      if (!await f.exists()) return null;
-      return await f.readAsString();
-    } catch (_) {
-      return null;
-    }
-  }
+  Future<String?> read() async => _prefs.getString(_key);
 
   @override
   Future<void> write(String data) async {
-    final f = await _file();
-    await f.writeAsString(data, flush: true);
+    await _prefs.setString(_key, data);
   }
 }
 

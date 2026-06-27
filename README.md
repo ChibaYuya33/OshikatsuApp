@@ -20,7 +20,7 @@
 
 - Flutter (stable) / Dart
 - 状態管理: Riverpod
-- ローカル保存: JSON ストア（`path_provider`）※将来 Isar/Drift へ差し替え可能な Repository 構成
+- ローカル保存: JSON ストア（`shared_preferences`）※iOS/Android/Web すべてで動作。将来 Isar/Drift へ差し替え可能な Repository 構成
 - グラフ: fl_chart / カレンダー: table_calendar
 - 通知: flutter_local_notifications + timezone（サーバー不要のローカル通知）
 
@@ -29,8 +29,40 @@
 ```bash
 flutter pub get
 flutter run            # 実機 / エミュレータ
-flutter run -d chrome  # Web プレビュー（通知・写真保存は無効）
+flutter run -d chrome  # Web プレビュー（通知は無効・写真は保存制限あり）
 ```
+
+## 📱 iPhone で動作確認する（いちばん簡単：PWA）
+
+Mac も Apple Developer 登録（$99/年）も Xcode も**不要**。Web版（PWA）を GitHub Pages に
+自動公開し、iPhone の Safari で開いて「ホーム画面に追加」するだけでアプリのように使えます。
+
+### 手順
+1. **初回だけ**リポジトリ設定を1回行う（コードからは設定不可）
+   - GitHub のリポジトリ → **Settings** → 左メニュー **Pages**
+   - **Build and deployment** → **Source** を「**GitHub Actions**」に変更
+2. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
+   （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します
+   （Actions タブで進捗を確認できます。数分で完了）
+3. 公開後、iPhone の **Safari** で次のURLを開く
+   - **https://chibayuya33.github.io/OshikatsuApp/**
+4. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
+   → ホーム画面に「推し活アプリ」アイコンが追加され、全画面アプリのように起動します
+
+### PWA でできること / 制約
+- ✅ 推し・グッズ・支出・イベント・予算・貯金目標の登録/集計/グラフ/カレンダー、JSON バックアップ
+  （データは端末内 = ブラウザのストレージに保存されます）
+- ⚠️ **プッシュ通知**（チケット販売日リマインド等）は PWA では動きません → ネイティブ版のみ
+- ⚠️ **写真**はブラウザの制約で永続保存が限定的です → ネイティブ版で完全対応
+- ※ Safari のデータを消すと保存内容も消えます。機種変更・データ移行時は設定の **JSONエクスポート/インポート** をご利用ください
+
+## ネイティブで iPhone 実機確認する（後日・任意）
+
+「通知・写真も含めて本物のアプリとして」確認したくなったら、以下のどちらか。
+
+- **TestFlight（Mac 不要）**: [Codemagic](https://codemagic.io/) などの CI 無料枠で iOS ビルド →
+  App Store Connect → TestFlight で配信。**Apple Developer Program（$99/年）の登録が必要**。
+- **Mac + Xcode（無料7日）**: Mac があれば Xcode で実機に直接インストール可能（無料アカウントで7日間有効・要再インストール）。
 
 ## 検証
 
