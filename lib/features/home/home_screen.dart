@@ -6,8 +6,10 @@ import '../../core/db/models.dart';
 import '../../core/db/queries.dart';
 import '../../core/state/app_providers.dart';
 import '../../core/state/settings_providers.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../shared/widgets/common.dart';
+import '../../shared/widgets/decor.dart';
 import '../../shared/widgets/oshi_switch_action.dart';
 import '../event/event_detail_screen.dart';
 import '../oshi/oshi_edit_screen.dart';
@@ -44,12 +46,11 @@ class HomeScreen extends ConsumerWidget {
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
-                if (selected != null) _oshiHeader(context, selected, now),
-                const SizedBox(height: 8),
-                _budgetSummary(context, data, settings, selected, now),
+                if (selected != null)
+                  _hero(context, data, settings, selected, now),
                 const SectionHeader('近づいているイベント'),
                 ..._upcoming(context, data, oshiMap, now),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 _quickActions(context),
               ],
             ),
@@ -57,25 +58,47 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _welcome(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('🌸', style: TextStyle(fontSize: 64)),
-            const SizedBox(height: 16),
-            Text('推し活をはじめましょう',
-                style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 8),
-            const Text('まずは推しを登録してください',
-                textAlign: TextAlign.center),
+            Container(
+              width: 110,
+              height: 110,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    scheme.primaryContainer,
+                    scheme.secondaryContainer,
+                  ],
+                ),
+              ),
+              child: Icon(Icons.favorite_rounded,
+                  size: 50, color: scheme.primary),
+            ),
             const SizedBox(height: 24),
+            Text('推し活をはじめましょう',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 10),
+            Text('まずは大切な推しを登録してください',
+                textAlign: TextAlign.center,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: scheme.outline)),
+            const SizedBox(height: 28),
             FilledButton.icon(
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const OshiEditScreen()),
               ),
-              icon: const Icon(Icons.favorite),
+              icon: const Icon(Icons.add),
               label: const Text('推しを追加'),
             ),
           ],
@@ -84,89 +107,111 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _oshiHeader(BuildContext context, Oshi oshi, DateTime now) {
-    final color = Color(oshi.themeColor);
+  Widget _hero(BuildContext context, DbData data, AppSettings settings,
+      Oshi oshi, DateTime now) {
     final days = daysUntilBirthday(oshi.birthday, now);
-    return Card(
-      color: color.withValues(alpha: 0.12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            OshiAvatar(oshi: oshi, radius: 32),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(oshi.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 4),
-                  if (days != null)
-                    Row(
-                      children: [
-                        const Text('🎂 '),
-                        Text(days == 0
-                            ? '今日は誕生日です！おめでとう🎉'
-                            : '誕生日まであと $days 日'),
-                      ],
-                    )
-                  else
-                    Text('誕生日を登録するとカウントダウンできます',
-                        style: Theme.of(context).textTheme.bodySmall),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _budgetSummary(BuildContext context, DbData data,
-      AppSettings settings, Oshi? selected, DateTime now) {
     final spent =
-        monthlyExpenseTotal(data.expenses, now, oshiId: selected?.id);
+        monthlyExpenseTotal(data.expenses, now, oshiId: oshi.id);
     final b = evaluateBudget(spent, settings.monthlyBudget);
-    final scheme = Theme.of(context).colorScheme;
-    final color = switch (b.status) {
-      BudgetStatus.over => scheme.error,
-      BudgetStatus.warning => Colors.orange,
-      BudgetStatus.ok => scheme.primary,
-    };
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+    final onGrad = _onGradientColor(AppTheme.muted(Color(oshi.themeColor)));
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: GradientHeader(
+        baseColor: Color(oshi.themeColor),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('${now.month}月の推し活支出',
-                style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 4),
-            Text(yen(spent),
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                    )),
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(6),
-              child: LinearProgressIndicator(
-                value: b.ratio.clamp(0.0, 1.0),
-                minHeight: 8,
-                color: color,
-                backgroundColor: scheme.surfaceContainerHighest,
-              ),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border:
+                        Border.all(color: onGrad.withValues(alpha: 0.6), width: 2),
+                  ),
+                  child: OshiAvatar(oshi: oshi, radius: 30),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(oshi.name,
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  color: onGrad,
+                                  fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 2),
+                      Text(
+                        days == null
+                            ? '誕生日を登録できます'
+                            : days == 0
+                                ? 'お誕生日おめでとう'
+                                : '誕生日まで あと $days 日',
+                        style: TextStyle(
+                            color: onGrad.withValues(alpha: 0.85),
+                            fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 6),
-            Text(
-              b.remaining >= 0
-                  ? '予算 ${yen(b.limit)} / 残り ${yen(b.remaining)}'
-                  : '予算 ${yen(b.limit)} を ${yen(-b.remaining)} 超過',
-              style: TextStyle(color: color),
+            const SizedBox(height: 18),
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text('${now.month}月の支出',
+                          style: TextStyle(
+                              color: onGrad.withValues(alpha: 0.9),
+                              fontSize: 13)),
+                      const Spacer(),
+                      Text(yen(spent),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleLarge
+                              ?.copyWith(
+                                  color: onGrad,
+                                  fontWeight: FontWeight.w700)),
+                      Text(' / ${yen(b.limit)}',
+                          style: TextStyle(
+                              color: onGrad.withValues(alpha: 0.8),
+                              fontSize: 12)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: LinearProgressIndicator(
+                      value: b.ratio.clamp(0.0, 1.0),
+                      minHeight: 8,
+                      color: onGrad,
+                      backgroundColor: Colors.white.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    b.remaining >= 0
+                        ? '残り ${yen(b.remaining)}'
+                        : '予算を ${yen(-b.remaining)} 超過',
+                    style: TextStyle(
+                        color: onGrad.withValues(alpha: 0.9), fontSize: 12),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -179,10 +224,14 @@ class HomeScreen extends ConsumerWidget {
     final events = upcomingEvents(data.events, now, limit: 5);
     if (events.isEmpty) {
       return [
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('予定されているイベントはありません'),
+        SoftCard(
+          child: Row(
+            children: [
+              Icon(Icons.event_available_outlined,
+                  color: Theme.of(context).colorScheme.outline),
+              const SizedBox(width: 12),
+              const Expanded(child: Text('予定されているイベントはありません')),
+            ],
           ),
         ),
       ];
@@ -190,33 +239,85 @@ class HomeScreen extends ConsumerWidget {
     return events.map((e) {
       final oshi = oshiMap[e.oshiId];
       final days = e.dateTime.difference(now).inDays;
-      return Card(
-        child: ListTile(
-          leading: oshi != null
-              ? OshiAvatar(oshi: oshi, radius: 20)
-              : const CircleAvatar(child: Icon(Icons.event)),
-          title: Text(e.title),
-          subtitle: Text('${formatDate(e.dateTime)} ・ ${e.type.label}'),
-          trailing: Text(days <= 0 ? '本日' : 'あと$days日',
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => EventDetailScreen(eventId: e.id))),
+      return SoftCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => EventDetailScreen(eventId: e.id))),
+        child: Row(
+          children: [
+            if (oshi != null)
+              OshiAvatar(oshi: oshi, radius: 22)
+            else
+              const CircleAvatar(child: Icon(Icons.event)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(e.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 2),
+                  Text('${formatDate(e.dateTime)} ・ ${e.type.label}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.outline)),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            _dayBadge(context, days),
+          ],
         ),
       );
     }).toList();
   }
 
+  Widget _dayBadge(BuildContext context, int days) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: scheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(days <= 0 ? '本日' : 'あと$days日',
+          style: TextStyle(
+              color: scheme.onSecondaryContainer,
+              fontWeight: FontWeight.w700,
+              fontSize: 12)),
+    );
+  }
+
   Widget _quickActions(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.favorite_outline),
-        title: const Text('推しを管理'),
-        subtitle: const Text('推しの追加・編集・テーマ切替'),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const OshiListScreen()),
-        ),
+    return SoftCard(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const OshiListScreen()),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.favorite_outline,
+              color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('推しを管理',
+                    style: TextStyle(fontWeight: FontWeight.w600)),
+                Text('追加・編集・テーマ切替', style: TextStyle(fontSize: 12)),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right),
+        ],
       ),
     );
+  }
+
+  /// グラデ背景上で読みやすい文字色(白か濃色)を明度で判定。
+  Color _onGradientColor(Color bg) {
+    return bg.computeLuminance() > 0.6 ? const Color(0xFF4A3B3F) : Colors.white;
   }
 }

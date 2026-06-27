@@ -88,17 +88,29 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: scheme.primary.withValues(alpha: 0.5)),
-            const SizedBox(height: 16),
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: scheme.secondaryContainer.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 42, color: scheme.primary),
+            ),
+            const SizedBox(height: 18),
             Text(message,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium),
+                style: Theme.of(context)
+                    .textTheme
+                    .titleMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
             if (hint != null) ...[
               const SizedBox(height: 8),
               Text(hint!,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: scheme.outline,
+                        height: 1.5,
                       )),
             ],
           ],
@@ -116,15 +128,25 @@ class SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
+      padding: const EdgeInsets.fromLTRB(4, 20, 4, 10),
       child: Row(
         children: [
+          Container(
+            width: 4,
+            height: 18,
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: scheme.primary,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
           Text(title,
               style: Theme.of(context)
                   .textTheme
                   .titleMedium
-                  ?.copyWith(fontWeight: FontWeight.bold)),
+                  ?.copyWith(fontWeight: FontWeight.w700)),
           const Spacer(),
           ?trailing,
         ],

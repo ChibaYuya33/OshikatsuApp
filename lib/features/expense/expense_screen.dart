@@ -6,6 +6,7 @@ import '../../core/db/models.dart';
 import '../../core/db/queries.dart';
 import '../../core/state/app_providers.dart';
 import '../../core/state/settings_providers.dart';
+import '../../core/theme/app_theme.dart';
 import '../../core/utils/formatters.dart';
 import '../../shared/widgets/common.dart';
 import '../../shared/widgets/oshi_switch_action.dart';
@@ -139,7 +140,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final scheme = Theme.of(context).colorScheme;
     final color = switch (b.status) {
       BudgetStatus.over => scheme.error,
-      BudgetStatus.warning => Colors.orange,
+      BudgetStatus.warning => const Color(0xFFC68A4E), // くすみアンバー
       BudgetStatus.ok => scheme.primary,
     };
     final msg = switch (b.status) {
@@ -277,13 +278,7 @@ class _ExpenseScreenState extends ConsumerState<ExpenseScreen> {
     final entries = byCategory.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = entries.fold<int>(0, (s, e) => s + e.value);
-    final colors = [
-      Colors.pink,
-      Colors.orange,
-      Colors.blue,
-      Colors.green,
-      Colors.purple,
-    ];
+    final colors = AppTheme.mutedChartColors;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),

@@ -116,7 +116,7 @@ class _EventScreenState extends ConsumerState<EventScreen> {
                               '${formatTime(e.dateTime)} ・ ${e.type.label}${e.location != null ? ' ・ ${e.location}' : ''}'),
                           trailing: e.isAttended
                               ? const Icon(Icons.check_circle,
-                                  color: Colors.green)
+                                  color: Color(0xFF7FA07F))
                               : null,
                           onTap: () => Navigator.of(context).push(
                             MaterialPageRoute(

@@ -11,9 +11,10 @@ OUT = os.path.join(os.path.dirname(__file__), "..", "assets", "icon")
 os.makedirs(OUT, exist_ok=True)
 
 SIZE = 1024
-PINK_TOP = (255, 138, 180)   # #FF8AB4
-PINK_BOTTOM = (255, 111, 165)  # #FF6FA5
-WHITE = (255, 255, 255)
+# 大人可愛い・くすみローズのグラデ。
+PINK_TOP = (231, 183, 190)    # #E7B7BE 淡いくすみピンク
+PINK_BOTTOM = (201, 133, 148)  # #C98594 くすみローズ
+WHITE = (255, 248, 244)        # 生成りホワイト
 
 
 def gradient_bg(size, top, bottom):
