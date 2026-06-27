@@ -150,7 +150,7 @@ class _OshiEditScreenState extends ConsumerState<OshiEditScreen> {
               controller: _name,
               decoration: const InputDecoration(
                 labelText: '推しの名前 *',
-                prefixIcon: Icon(Icons.favorite_outline),
+                prefixIcon: Icon(Icons.person_outline),
               ),
               validator: (v) =>
                   (v == null || v.trim().isEmpty) ? '名前を入力してください' : null,

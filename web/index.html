@@ -20,12 +20,14 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="推しのグッズ・支出・イベントを一元管理する推し活アプリ。">
   <meta name="theme-color" content="#1A233C">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <!-- viewport-fit=cover や black-translucent はiOSのホーム画面アプリ(standalone)で
+       タッチ座標がずれ、ボタンが反応しなくなるため使わない。 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="推し活アプリ">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 

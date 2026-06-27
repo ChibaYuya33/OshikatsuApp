@@ -29,7 +29,7 @@ class OshiListScreen extends ConsumerWidget {
       ),
       body: oshis.isEmpty
           ? const EmptyState(
-              icon: Icons.favorite_border,
+              icon: Icons.star_outline_rounded,
               message: '推しを登録しましょう',
               hint: '右下のボタンから最初の推しを追加できます',
             )

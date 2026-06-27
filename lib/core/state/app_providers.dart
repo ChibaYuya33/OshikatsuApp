@@ -221,6 +221,6 @@ final oshiMapProvider = Provider<Map<String, Oshi>>((ref) {
   return {for (final o in data.oshis) o.id: o};
 });
 
-/// 推し色 (選択中の推しが無ければ既定のピンク)。
+/// 推し色 (選択中の推しが無ければ既定のニュートラルなネイビー)。
 Color resolveSeedColor(Oshi? oshi) =>
-    oshi != null ? Color(oshi.themeColor) : const Color(0xFFFF6FA5);
+    oshi != null ? Color(oshi.themeColor) : const Color(0xFF44597A);

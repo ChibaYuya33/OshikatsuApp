@@ -146,7 +146,7 @@ class _GoodsListScreenState extends ConsumerState<GoodsListScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('グッズ')),
       body: EmptyState(
-        icon: Icons.favorite_border,
+        icon: Icons.star_outline_rounded,
         message: 'まず推しを登録しましょう',
         hint: 'グッズは推しごとに管理します',
       ),

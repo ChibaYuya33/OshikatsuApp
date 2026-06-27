@@ -20,7 +20,7 @@ class OshiDropdown extends StatelessWidget {
       initialValue: selectedId,
       decoration: const InputDecoration(
         labelText: '推し *',
-        prefixIcon: Icon(Icons.favorite_outline),
+        prefixIcon: Icon(Icons.person_outline),
       ),
       items: oshis
           .map((o) => DropdownMenuItem(

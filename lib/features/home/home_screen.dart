@@ -77,7 +77,7 @@ class HomeScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              child: Icon(Icons.favorite_rounded,
+              child: Icon(Icons.star_rounded,
                   size: 50, color: scheme.primary),
             ),
             const SizedBox(height: 24),
@@ -297,7 +297,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.favorite_outline,
+          Icon(Icons.people_alt_outlined,
               color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 14),
           const Expanded(

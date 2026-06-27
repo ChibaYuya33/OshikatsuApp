@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 
-/// 推し色 (seed) から「大人可愛い・くすみ」テイストのテーマを生成する。
+/// 推し色 (seed) から、男女問わず使えるニュートラルで上品なテーマを生成する。
 class AppTheme {
-  // 同梱フォント(オフライン対応)。見出し=丸ゴシック、本文=角ゴシック。
-  static const String _fontHeading = 'ZenMaruGothic';
+  // 同梱フォント(オフライン対応)。見出し・本文ともクセのない角ゴシックで統一。
+  static const String _fontHeading = 'ZenKakuGothicNew';
   static const String _fontBody = 'ZenKakuGothicNew';
 
   static ThemeData light(Color seed) => _build(seed, Brightness.light);
   static ThemeData dark(Color seed) => _build(seed, Brightness.dark);
 
-  // 温かみのある背景(真っ白を避ける)。
-  static const Color _lightBg = Color(0xFFFAF6F4);
+  // ニュートラルな背景(やや寒色寄りのグレー。真っ白を避ける)。
+  static const Color _lightBg = Color(0xFFF4F5F7);
   static const Color _lightCard = Color(0xFFFFFFFF);
-  static const Color _darkBg = Color(0xFF1A1617);
-  static const Color _darkCard = Color(0xFF241F21);
+  static const Color _darkBg = Color(0xFF15181E);
+  static const Color _darkCard = Color(0xFF1F242C);
 
   static ThemeData _build(Color seed, Brightness brightness) {
     final isLight = brightness == Brightness.light;
@@ -145,7 +145,7 @@ class AppTheme {
   }
 
   static TextTheme _textTheme(TextTheme baseText, ColorScheme scheme) {
-    // 本文は Zen Kaku Gothic New、見出しは Zen Maru Gothic(丸み・上品)。
+    // 見出し・本文とも Zen Kaku Gothic New(ニュートラルな角ゴシック)で統一。
     final body = baseText.apply(fontFamily: _fontBody);
     TextStyle? maru(TextStyle? s, FontWeight w) =>
         s?.copyWith(fontFamily: _fontHeading, fontWeight: w);
@@ -170,29 +170,29 @@ class AppTheme {
     return hsl.withSaturation(s).withLightness(l).toColor();
   }
 
-  /// グラフ用のくすみパレット。
+  /// グラフ用のニュートラルパレット(寒色・中性色を中心に)。
   static const List<Color> mutedChartColors = [
-    Color(0xFFD8989E), // くすみローズ
-    Color(0xFFCBA06E), // くすみマスタード
-    Color(0xFF9FB3A6), // セージ
-    Color(0xFF93A7C0), // ダスティブルー
-    Color(0xFFB6A0C2), // くすみラベンダー
-    Color(0xFFCBA59A), // テラコッタ
+    Color(0xFF5B7AA8), // スレートブルー
+    Color(0xFF5E9C8E), // ティールグリーン
+    Color(0xFFC2A35A), // マスタード
+    Color(0xFF8E7CB0), // インディゴグレー
+    Color(0xFF8A99A8), // グレーブルー
+    Color(0xFFC08A7A), // テラコッタ
   ];
 
-  /// 推し色プリセット(くすみ12色・大人可愛い)。
+  /// 推し色プリセット(12色・男女問わず使える中性〜寒色を中心にバランス)。
   static const List<Color> presetColors = [
-    Color(0xFFE0A3AC), // くすみピンク
-    Color(0xFFD98C9A), // ローズ
-    Color(0xFFCB8E7E), // テラコッタ
-    Color(0xFFD3A86E), // くすみマスタード
-    Color(0xFFC9B27E), // ベージュゴールド
-    Color(0xFFA7BB97), // セージ
-    Color(0xFF8FB7A8), // くすみミント
-    Color(0xFF8FAAC0), // ダスティブルー
-    Color(0xFF9D9BC4), // くすみラベンダー
-    Color(0xFFB594BC), // モーブパープル
-    Color(0xFFC58FAE), // くすみマゼンタ
-    Color(0xFFAD9A8C), // グレージュ
+    Color(0xFF44597A), // ネイビー
+    Color(0xFF4F7CAC), // スチールブルー
+    Color(0xFF3FA39B), // ティール
+    Color(0xFF5C9A6A), // フォレストグリーン
+    Color(0xFF7E8CA0), // スレートグレー
+    Color(0xFF8E7CB0), // インディゴ
+    Color(0xFFC2A35A), // マスタード
+    Color(0xFFCB7A4E), // テラコッタオレンジ
+    Color(0xFF9C5A5A), // バーガンディ
+    Color(0xFF6D7A52), // オリーブ
+    Color(0xFF4A4F5C), // チャコール
+    Color(0xFFC58FAE), // くすみピンク(推し色として選べる)
   ];
 }
