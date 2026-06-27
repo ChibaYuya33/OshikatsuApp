@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/db/models.dart';
+import '../../core/state/settings_providers.dart';
 
 /// 推し情報の取得元を抽象化する。
 ///
@@ -41,17 +44,20 @@ class RemoteFeedRepository implements FeedRepository {
 
   @override
   Future<List<FeedItem>> fetchNew(Oshi oshi, {DateTime? since}) async {
+    // トークンはクエリで渡す(Web のクロスオリジンで preflight を避けるため。
+    // サーバーは X-Api-Token ヘッダ / token クエリの両対応)。
     final res = await _dio.get(
       '$baseUrl/feed.php',
       queryParameters: {
         'oshi': oshi.id,
         if (since != null) 'since': since.toIso8601String(),
+        if (apiToken != null && apiToken!.isNotEmpty) 'token': apiToken,
       },
-      options: apiToken == null
-          ? null
-          : Options(headers: {'X-Api-Token': apiToken}),
     );
-    final list = (res.data as List?) ?? const [];
+    final data = res.data;
+    final list = data is List
+        ? data
+        : (data is String ? (jsonDecode(data) as List?) ?? const [] : const []);
     return list
         .whereType<Map>()
         .map((e) => FeedItem.fromJson(e.cast<String, dynamic>()))
@@ -59,6 +65,15 @@ class RemoteFeedRepository implements FeedRepository {
   }
 }
 
-/// 現在使用するリポジトリ。次フェーズでは RemoteFeedRepository に override する。
-final feedRepositoryProvider =
-    Provider<FeedRepository>((ref) => LocalFeedRepository());
+/// 現在使用するリポジトリ。
+/// 設定で収集サーバーの URL が入っていれば [RemoteFeedRepository]、
+/// 未設定なら [LocalFeedRepository](手動登録のみ)。
+final feedRepositoryProvider = Provider<FeedRepository>((ref) {
+  final s = ref.watch(settingsProvider);
+  final base = s.feedApiBaseUrl.trim();
+  if (base.isEmpty) return LocalFeedRepository();
+  return RemoteFeedRepository(
+    base,
+    apiToken: s.feedApiToken.trim().isEmpty ? null : s.feedApiToken.trim(),
+  );
+});

@@ -33,22 +33,30 @@ server/
    curl "https://example.xsrv.jp/oshikatsu/api/feed.php?oshi=OSHI_ID&token=API_TOKEN"
    ```
 
-## アプリ側の接続（自動収集の有効化）
+## アプリ側の接続（コード変更は不要・設定画面から）
 
-`lib/main.dart` の `ProviderScope.overrides` に以下を追加すると、フィード画面の「更新」で自動取得されます。
+アプリの **設定 → 自動収集サーバー → 収集サーバーの設定** で、次を入力して保存するだけです。
 
-```dart
-import 'features/feed/feed_repository.dart';
+- **API URL**: `https://example.xsrv.jp/oshikatsu/api`（`feed.php` の1つ上のディレクトリ）
+- **APIトークン**: `config.php` の `api_token` と同じ値（空なら認証なし）
 
-// overrides: [...] に追加
-feedRepositoryProvider.overrideWithValue(
-  RemoteFeedRepository('https://example.xsrv.jp/oshikatsu/api'),
-),
-```
+設定すると、情報タブ右上の「更新」ボタンで収集サーバーから新着を取得します（URL重複は自動除外）。
+URL を空に戻すと未設定（手動登録のみ）に戻ります。
 
-`RemoteFeedRepository` は `GET {baseUrl}/feed.php?oshi=...&since=...` を呼び、返却JSONをそのまま
+### 推しID（targets 設定用）の調べ方
+`config.php` の `targets[].oshi_id` には**アプリ内の推しID**を入れます。
+アプリの **設定 → 自動収集サーバー → 推しID (サーバー設定用)** で各推しのIDをコピーできます。
+
+### 通信仕様
+`RemoteFeedRepository` は `GET {baseUrl}/feed.php?oshi=...&since=...&token=...` を呼び、返却JSONを
 `FeedItem` に変換します（キーは `id/oshiId/source/title/url/publishedAt/thumbnailUrl`）。
-> 認証トークンを使う場合は `RemoteFeedRepository` に `X-Api-Token` ヘッダを追加してください。
+トークンはクエリ `token` で送ります（Web のクロスオリジンで preflight を避けるため。サーバーは
+`X-Api-Token` ヘッダにも対応）。
+
+### CORS（PWA / 別ドメインから呼ぶ場合・重要）
+アプリを GitHub Pages 等の別ドメインで動かす場合、ブラウザのCORS制限で `feed.php` を呼べません。
+`api/feed.php` には `Access-Control-Allow-Origin: *` 等のヘッダと OPTIONS 応答を実装済みです。
+セキュリティを上げたい場合は `*` を自分の公開URL（例 `https://chibayuya33.github.io`）に絞ってください。
 
 ## 規約・注意
 - 公式RSS・YouTube公式API・Google検索APIを各利用規約の範囲で利用します。

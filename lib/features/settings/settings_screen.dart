@@ -4,10 +4,12 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/db/local_store.dart';
 import '../../core/db/queries.dart';
 import '../../core/state/app_providers.dart';
 import '../../core/state/settings_providers.dart';
@@ -120,12 +122,36 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SectionHeader('自動収集サーバー (任意・上級者向け)'),
+          Card(
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.cloud_sync_outlined),
+                  title: const Text('収集サーバーの設定'),
+                  subtitle: Text(settings.feedApiBaseUrl.isEmpty
+                      ? '未設定 (情報タブは手動登録のみ)'
+                      : settings.feedApiBaseUrl),
+                  trailing: const Icon(Icons.edit_outlined),
+                  onTap: () => _editServer(context, ref, settings),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.tag_outlined),
+                  title: const Text('推しID (サーバー設定用)'),
+                  subtitle: const Text('サーバーの targets に登録するIDをコピー'),
+                  onTap: () => _showOshiIds(context, data),
+                ),
+              ],
+            ),
+          ),
           const SectionHeader('このアプリについて'),
           const Card(
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'データはすべて端末内に保存され、外部に送信されません。\n'
+                'あなたのデータは端末内(ブラウザ)に保存されます。\n'
+                '収集サーバーを設定した場合のみ、新着取得のため推しIDをサーバーへ送信します。\n'
                 '推しの情報・グッズ・支出・イベントをまとめて管理できる推し活アプリです。',
               ),
             ),
@@ -238,5 +264,99 @@ class SettingsScreen extends ConsumerWidget {
       messenger.showSnackBar(
           const SnackBar(content: Text('読み込みに失敗しました(ファイル形式を確認してください)')));
     }
+  }
+
+  void _editServer(BuildContext context, WidgetRef ref, AppSettings settings) {
+    final urlCtrl = TextEditingController(text: settings.feedApiBaseUrl);
+    final tokenCtrl = TextEditingController(text: settings.feedApiToken);
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('収集サーバーの設定'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: urlCtrl,
+              keyboardType: TextInputType.url,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                labelText: 'API URL',
+                hintText: 'https://example.xsrv.jp/oshikatsu/api',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: tokenCtrl,
+              autocorrect: false,
+              decoration: const InputDecoration(
+                labelText: 'APIトークン (任意)',
+                hintText: 'config.php の api_token と同じ値',
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              '空にすると未設定(手動登録のみ)に戻ります。導入手順は server/README.md を参照。',
+              style: TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('キャンセル')),
+          FilledButton(
+            onPressed: () {
+              ref
+                  .read(settingsProvider.notifier)
+                  .setFeedApi(urlCtrl.text, tokenCtrl.text);
+              Navigator.pop(context);
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOshiIds(BuildContext context, DbData data) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SafeArea(
+        child: data.oshis.isEmpty
+            ? const Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('先に推しを登録してください'),
+              )
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 4),
+                    child: Text(
+                      '推しID (サーバーの config.php → targets に設定)',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  ...data.oshis.map((o) => ListTile(
+                        title: Text(o.name),
+                        subtitle: Text(o.id,
+                            style: const TextStyle(fontFamily: 'monospace')),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.copy_outlined),
+                          tooltip: 'IDをコピー',
+                          onPressed: () {
+                            Clipboard.setData(ClipboardData(text: o.id));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('「${o.name}」のIDをコピーしました')),
+                            );
+                          },
+                        ),
+                      )),
+                  const SizedBox(height: 8),
+                ],
+              ),
+      ),
+    );
   }
 }

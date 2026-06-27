@@ -213,19 +213,34 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   Future<void> _refresh(FeedRepository repo, Oshi? oshi) async {
     if (!repo.supportsAutoFetch) {
-      _toast('自動収集は次フェーズで有効になります(今は手動登録のみ)');
+      _toast('収集サーバーが未設定です(設定 → 自動収集サーバー で登録)');
       return;
     }
     if (oshi == null) return;
+    _toast('収集サーバーから取得中…');
     try {
-      final items = await repo.fetchNew(oshi);
+      final existing =
+          ref.read(appProvider).feeds.where((f) => f.oshiId == oshi.id);
+      final existingUrls = existing.map((f) => f.url).toSet();
+      // 取得済みの自動収集分の最新日時以降だけ取りに行く(手動登録分は除外)。
+      final autoDates = existing
+          .where((f) => f.source != FeedSource.manual)
+          .map((f) => f.publishedAt);
+      final since = autoDates.isEmpty
+          ? null
+          : autoDates.reduce((a, b) => a.isAfter(b) ? a : b);
+
+      final items = await repo.fetchNew(oshi, since: since);
       final notifier = ref.read(appProvider.notifier);
+      var added = 0;
       for (final item in items) {
+        if (existingUrls.contains(item.url)) continue; // URL重複は除外
         await notifier.addFeed(item);
+        added++;
       }
-      _toast('${items.length}件の新着を取得しました');
+      _toast(added > 0 ? '$added件の新着を取得しました' : '新着はありませんでした');
     } catch (e) {
-      _toast('取得に失敗しました');
+      _toast('取得に失敗しました(URL・トークン・通信を確認してください)');
     }
   }
 
@@ -261,7 +276,7 @@ class _AutoFetchNotice extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              '自動収集(YouTube/RSS/Web検索)は次フェーズで有効化されます。今は情報を手動登録できます。',
+              '自動収集(YouTube/RSS/Web検索)を使うには、設定 → 自動収集サーバー で収集サーバーを登録してください。未設定でも情報は手動登録できます。',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

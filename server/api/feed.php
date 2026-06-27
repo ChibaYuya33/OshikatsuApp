@@ -5,6 +5,19 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
+// --- CORS ---
+// アプリ(PWA / GitHub Pages 等)からクロスオリジンで叩けるよう許可する。
+// 必要なら '*' を自分の公開URL(例: https://chibayuya33.github.io)に絞ってよい。
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, OPTIONS');
+header('Access-Control-Allow-Headers: X-Api-Token, Content-Type');
+header('Access-Control-Max-Age: 86400');
+// プリフライト(OPTIONS)はここで終了。
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
+
 require_once __DIR__ . '/../lib/db.php';
 $config = require __DIR__ . '/../config.php';
 
