@@ -4,11 +4,13 @@ name: Deploy Web (PWA) to GitHub Pages
 # 公開URL: https://chibayuya33.github.io/OshikatsuApp/
 # ※ 初回のみ、リポジトリ Settings → Pages → Build and deployment → Source を
 #    「GitHub Actions」に設定する必要があります（コードからは設定できません）。
+# ※ GitHub Pages 環境は既定でデフォルトブランチ(main)からのみデプロイ可能なため、
+#    公開は main への push で行う。
 
 on:
   push:
     branches:
-      - claude/fan-activity-app-6xo8tr
+      - main
   workflow_dispatch: {}
 
 # GitHub Pages へのデプロイに必要な権限。

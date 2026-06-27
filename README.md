@@ -45,10 +45,10 @@ Mac も Apple Developer 登録（$99/年）も Xcode も**不要**。Web版（PW
 1. **初回だけ**、リポジトリで GitHub Pages を有効化（コードからは設定不可）
    - GitHub のリポジトリ → **Settings** → 左メニュー **Pages**
    - **Build and deployment** → **Source** を「**GitHub Actions**」に変更
-2. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
+2. `main` ブランチに push すると、GitHub Actions
    （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します
-   （**Actions** タブで進捗を確認できます。数分で完了。最初の1回は Settings 反映後に
-   Actions タブから **Re-run** してください）
+   （GitHub Pages はデフォルトブランチ=main からのみ公開できるため。
+   **Actions** タブで進捗を確認できます。数分で完了）
 3. 公開後、iPhone の **Safari** で次のURLを開く
    - **https://chibayuya33.github.io/OshikatsuApp/**
 4. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
