@@ -1,7 +1,43 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+
+/// Web 用の軽量ページ遷移(フェードのみ)。
+/// CanvasKit(モバイル Safari)では Cupertino のパララックス遷移が重く、
+/// 戻る操作がもたつくため、Web では安価なフェードに置き換える。
+class _FadePageTransitionsBuilder extends PageTransitionsBuilder {
+  const _FadePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(
+      opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+      child: child,
+    );
+  }
+}
 
 /// 推し色 (seed) から、男女問わず使えるニュートラルで上品なテーマを生成する。
 class AppTheme {
+  // Web では全プラットフォームで軽量フェード遷移を使う(高速化)。
+  // ネイティブ実機では各 OS 既定の遷移を維持。
+  static const PageTransitionsTheme _pageTransitions = kIsWeb
+      ? PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: _FadePageTransitionsBuilder(),
+            TargetPlatform.iOS: _FadePageTransitionsBuilder(),
+            TargetPlatform.macOS: _FadePageTransitionsBuilder(),
+            TargetPlatform.windows: _FadePageTransitionsBuilder(),
+            TargetPlatform.linux: _FadePageTransitionsBuilder(),
+            TargetPlatform.fuchsia: _FadePageTransitionsBuilder(),
+          },
+        )
+      : PageTransitionsTheme();
   // 同梱フォント(オフライン対応)。見出し・本文ともクセのない角ゴシックで統一。
   static const String _fontHeading = 'ZenKakuGothicNew';
   static const String _fontBody = 'ZenKakuGothicNew';
@@ -38,6 +74,7 @@ class AppTheme {
 
     return base.copyWith(
       textTheme: text,
+      pageTransitionsTheme: _pageTransitions,
       splashFactory: InkSparkle.splashFactory,
       appBarTheme: AppBarTheme(
         backgroundColor: scheme.surface,

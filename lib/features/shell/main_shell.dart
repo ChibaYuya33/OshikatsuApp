@@ -29,7 +29,10 @@ class _MainShellState extends ConsumerState<MainShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
+      // 遷移/アニメ中にシェルをレイヤーキャッシュ化し、毎フレームの再ラスタライズを避ける。
+      body: RepaintBoundary(
+        child: IndexedStack(index: _index, children: _tabs),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),
