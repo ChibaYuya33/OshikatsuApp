@@ -37,19 +37,28 @@ flutter run -d chrome  # Web プレビュー（通知は無効・写真は保存
 Mac も Apple Developer 登録（$99/年）も Xcode も**不要**。Web版（PWA）を GitHub Pages に
 自動公開し、iPhone の Safari で開いて「ホーム画面に追加」するだけでアプリのように使えます。
 
+> ⚠️ **重要（プラン要件）**: GitHub Pages を **非公開（private）リポジトリ**で使うには
+> 有料プラン（GitHub Pro 等）が必要です。**無料プランの場合は、リポジトリを公開（public）にする**か、
+> 下記「別の無料ホスティング」を利用してください。
+
 ### 手順
-1. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
-   （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します。
-   **GitHub Pages の有効化もワークフローが自動で行う**ため、原則として事前設定は不要です
-   （**Actions** タブで進捗を確認できます。数分で完了）
-2. 公開後、iPhone の **Safari** で次のURLを開く
+1. **初回だけ**、リポジトリで GitHub Pages を有効化（コードからは設定不可）
+   - GitHub のリポジトリ → **Settings** → 左メニュー **Pages**
+   - **Build and deployment** → **Source** を「**GitHub Actions**」に変更
+2. `claude/fan-activity-app-6xo8tr` ブランチに push すると、GitHub Actions
+   （`.github/workflows/deploy-web.yml`）が自動でビルド＆公開します
+   （**Actions** タブで進捗を確認できます。数分で完了。最初の1回は Settings 反映後に
+   Actions タブから **Re-run** してください）
+3. 公開後、iPhone の **Safari** で次のURLを開く
    - **https://chibayuya33.github.io/OshikatsuApp/**
-3. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
+4. 共有ボタン（□に↑）→ **「ホーム画面に追加」** をタップ
    → ホーム画面に「推し活アプリ」アイコンが追加され、全画面アプリのように起動します
 
-> もし Actions が Pages 関連でエラーになる場合のみ、1回だけ手動設定してください：
-> GitHub のリポジトリ → **Settings** → **Pages** → **Build and deployment** → **Source** を
-> 「**GitHub Actions**」に変更して、Actions タブから再実行（Re-run）します。
+### 別の無料ホスティング（非公開のまま使いたい場合）
+リポジトリを公開したくない & 無料で使いたい場合は、private リポジトリでも無料枠で
+静的サイトを公開できる **Cloudflare Pages / Netlify / Vercel** が使えます。
+いずれもビルド設定は `flutter build web --release` 相当、公開ディレクトリは `build/web` です
+（必要なら設定をお手伝いします）。
 
 ### PWA でできること / 制約
 - ✅ 推し・グッズ・支出・イベント・予算・貯金目標の登録/集計/グラフ/カレンダー、JSON バックアップ
